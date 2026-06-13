@@ -1,0 +1,55 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: vault-eks
+  region: ap-south-1
+  version: "1.34"
+
+autoModeConfig:
+  enabled: false
+
+iam:
+  withOIDC: true
+
+cloudWatch:
+  clusterLogging:
+    enableTypes:
+      - api
+      - audit
+      - authenticator
+
+addons:
+  - name: vpc-cni
+
+  - name: coredns
+
+  - name: kube-proxy
+
+  - name: metrics-server
+
+  - name: aws-ebs-csi-driver
+
+managedNodeGroups:
+  - name: spot-workers
+
+    spot: true
+
+    instanceTypes:
+      - t3.small
+      - t3a.small
+      - t3.medium
+
+    desiredCapacity: 3
+    minSize: 3
+    maxSize: 4
+
+    volumeType: gp3
+    volumeSize: 20
+
+    labels:
+      workload: vault
+
+    tags:
+      Environment: Lab
+      Application: Vault
