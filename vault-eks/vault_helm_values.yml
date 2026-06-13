@@ -4,7 +4,7 @@ injector:
 server:
   image:
     repository: "hashicorp/vault"
-    tag: "2.0.0"
+    tag: "1.21.4"
 
   standalone:
     enabled: false
@@ -12,6 +12,11 @@ server:
   serviceAccount:
     create: true
     name: "sa-vault-demo"
+
+  dataStorage:
+    enabled: true
+    size: 10Gi
+    storageClass: gp3
 
 
   ha:
@@ -40,6 +45,4 @@ ui:
   serviceNodePort: null
   externalPort: 443
   annotations: 
-    service.beta.kubernetes.io/aws-loadbalancer-type: external    
-
-
+    service.beta.kubernetes.io/aws-loadbalancer-type: external 
