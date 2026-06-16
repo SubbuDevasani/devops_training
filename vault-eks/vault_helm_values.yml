@@ -16,7 +16,7 @@ server:
   dataStorage:
     enabled: true
     size: 10Gi
-    storageClass: gp3
+    storageClass: gp2
 
 
   ha:
@@ -43,6 +43,5 @@ ui:
   enabled: true
   serviceType: "LoadBalancer"
   serviceNodePort: null
-  externalPort: 443
   annotations: 
     service.beta.kubernetes.io/aws-loadbalancer-type: external 
