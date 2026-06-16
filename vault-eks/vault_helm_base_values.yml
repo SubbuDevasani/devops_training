@@ -34,6 +34,11 @@ server:
           address = "[::]:8200"
           cluster_address = "[::]:8201"
         }
+        
+        seal "awskms" {
+          region     = "ap-south-1"
+          kms_key_id = "be97db6e-9ef8-4545-b199-8f38911ba548"
+        }
 
         storage "raft" {
           path = "/vault/data"
