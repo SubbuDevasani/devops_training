@@ -12,6 +12,8 @@ server:
   serviceAccount:
     create: true
     name: "sa-vault-demo"
+    annotations:
+      eks.amazonaws.com/role-arn: arn:aws:iam::060795930820:role/VAULT_KMS_ROLE
 
   dataStorage:
     enabled: true
