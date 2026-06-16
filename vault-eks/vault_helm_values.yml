@@ -37,6 +37,22 @@ server:
 
         storage "raft" {
           path = "/vault/data"
+            retry_join {
+              leader_api_addr = "https://vault-helm-0.vault-helm-internal:8200"
+            }
+            retry_join {
+              leader_api_addr = "https://vault-helm-1.vault-helm-internal:8200"
+            }
+            retry_join {
+              leader_api_addr = "https://vault-helm-2.vault-helm-internal:8200"
+            }
+            autopilot {
+              cleanup_dead_servers = "true"
+              last_contact_threshold = "200ms"
+              max_trailing_logs = 250000
+              min_quorum = 3
+              server_stabilization_time = "10s"
+            }
         }
 
 ui:
