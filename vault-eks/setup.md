@@ -217,28 +217,10 @@ DEB052B9246A4C4A11572EF33B7FBAA5
 
 ## Trust Policy
 
-Create:
+Create trust relationship policy, copy content from trust-policy.json file in this repo:
 
+```bash
 trust-policy.json
-
-```json
-{
-  "Version":"2012-10-17",
-  "Statement":[
-    {
-      "Effect":"Allow",
-      "Principal":{
-        "Federated":"arn:aws:iam::<ACCOUNT_ID>:oidc-provider/oidc.eks.ap-south-1.amazonaws.com/id/<OIDC_ID>"
-      },
-      "Action":"sts:AssumeRoleWithWebIdentity",
-      "Condition":{
-        "StringEquals":{
-          "oidc.eks.ap-south-1.amazonaws.com/id/<OIDC_ID>:sub":"system:serviceaccount:vault:sa-vault-demo"
-        }
-      }
-    }
-  ]
-}
 ```
 
 Create Role:
@@ -253,25 +235,10 @@ aws iam create-role \
 
 ## IAM Permissions
 
-Create:
-
-kms-policy.json
+Create IAM policy, copy content from kms-policy.json file in this repo:
 
 ```json
-{
-  "Version":"2012-10-17",
-  "Statement":[
-    {
-      "Effect":"Allow",
-      "Action":[
-        "kms:Encrypt",
-        "kms:Decrypt",
-        "kms:DescribeKey"
-      ],
-      "Resource":"*"
-    }
-  ]
-}
+kms-policy.json
 ```
 
 Attach:
