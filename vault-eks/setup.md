@@ -257,7 +257,7 @@ aws iam put-role-policy \
 Create EKS Cluster, by copying [cluster.yaml](https://github.com/SubbuDevasani/devops_training/blob/master/vault-eks/cluster.yaml) file:
 
 ```bash
-vi trust-policy.json
+vi cluster.yaml
 eksctl create cluster -f cluster.yaml
 ```
 
