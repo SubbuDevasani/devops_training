@@ -13,7 +13,7 @@ server:
     create: true
     name: "sa-vault-demo"
     annotations:
-      eks.amazonaws.com/role-arn: arn:aws:iam::060795930820:role/VAULT_KMS_ROLE
+      eks.amazonaws.com/role-arn: arn:aws:iam::340825716924:role/VaultKMSRole
 
   dataStorage:
     enabled: true
@@ -39,19 +39,19 @@ server:
         
         seal "awskms" {
           region     = "ap-south-1"
-          kms_key_id = "be97db6e-9ef8-4545-b199-8f38911ba548"
+          kms_key_id = "a8a11064-8dd4-4830-84a2-ca6d1d51fa0b"
         }
 
         storage "raft" {
           path = "/vault/data"
             retry_join {
-              leader_api_addr = "https://vault-helm-0.vault-helm-internal:8200"
+              leader_api_addr = "http://vault-helm-0.vault-helm-internal:8200"
             }
             retry_join {
-              leader_api_addr = "https://vault-helm-1.vault-helm-internal:8200"
+              leader_api_addr = "http://vault-helm-1.vault-helm-internal:8200"
             }
             retry_join {
-              leader_api_addr = "https://vault-helm-2.vault-helm-internal:8200"
+              leader_api_addr = "http://vault-helm-2.vault-helm-internal:8200"
             }
             autopilot {
               cleanup_dead_servers = "true"
@@ -67,4 +67,4 @@ ui:
   serviceType: "LoadBalancer"
   serviceNodePort: null
   annotations: 
-    service.beta.kubernetes.io/aws-loadbalancer-type: external 
+    service.beta.kubernetes.io/aws-loadbalancer-type: external
