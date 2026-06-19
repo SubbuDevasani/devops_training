@@ -559,7 +559,9 @@ aws iam delete-role \
 
 ---
 
-# Cleanup Validation
+# Cleanup Validation and Forced Resource Removal
+
+## 1. EKS Clusters
 
 Verify:
 
@@ -575,6 +577,24 @@ Expected:
 }
 ```
 
+If any cluster exists:
+
+```bash
+eksctl delete cluster \
+--name <CLUSTER_NAME> \
+--region ap-south-1
+```
+
+Verify again:
+
+```bash
+aws eks list-clusters
+```
+
+---
+
+## 2. Load Balancers
+
 Verify:
 
 ```bash
@@ -588,6 +608,192 @@ Expected:
   "LoadBalancers": []
 }
 ```
+
+If any Load Balancer exists:
+
+List:
+
+```bash
+aws elbv2 describe-load-balancers \
+--query "LoadBalancers[*].[LoadBalancerArn,LoadBalancerName]" \
+--output table
+```
+
+Delete:
+
+```bash
+aws elbv2 delete-load-balancer \
+--load-balancer-arn <LB_ARN>
+```
+
+Verify:
+
+```bash
+aws elbv2 describe-load-balancers
+```
+
+---
+
+## 3. EBS Volumes
+
+Verify:
+
+```bash
+aws ec2 describe-volumes \
+--filters Name=status,Values=available \
+--query "Volumes[*].[VolumeId,Size]" \
+--output table
+```
+
+Example:
+
+```text
+vol-123456
+vol-789012
+```
+
+Delete:
+
+```bash
+aws ec2 delete-volume \
+--volume-id vol-123456
+```
+
+```bash
+aws ec2 delete-volume \
+--volume-id vol-789012
+```
+
+Verify:
+
+```bash
+aws ec2 describe-volumes \
+--filters Name=status,Values=available
+```
+
+Expected:
+
+```json
+{
+  "Volumes": []
+}
+```
+
+---
+
+## 4. Running EC2 Instances
+
+Verify:
+
+```bash
+aws ec2 describe-instances \
+--filters Name=instance-state-name,Values=running \
+--query 'Reservations[*].Instances[*].[InstanceId,InstanceType]' \
+--output table
+```
+
+If any worker nodes remain:
+
+Terminate:
+
+```bash
+aws ec2 terminate-instances \
+--instance-ids <INSTANCE_ID>
+```
+
+Example:
+
+```bash
+aws ec2 terminate-instances \
+--instance-ids i-1234567890abcdef
+```
+
+Verify:
+
+```bash
+aws ec2 describe-instances \
+--filters Name=instance-state-name,Values=running
+```
+
+Only your jump server should remain.
+
+---
+
+## 5. NAT Gateways
+
+Verify:
+
+```bash
+aws ec2 describe-nat-gateways
+```
+
+Expected:
+
+```json
+{
+  "NatGateways": []
+}
+```
+
+If any NAT Gateway exists:
+
+List:
+
+```bash
+aws ec2 describe-nat-gateways \
+--query "NatGateways[*].[NatGatewayId,State]" \
+--output table
+```
+
+Delete:
+
+```bash
+aws ec2 delete-nat-gateway \
+--nat-gateway-id <NAT_GATEWAY_ID>
+```
+
+Verify:
+
+```bash
+aws ec2 describe-nat-gateways
+```
+
+---
+
+## 6. Elastic IPs
+
+Verify:
+
+```bash
+aws ec2 describe-addresses
+```
+
+Expected:
+
+```json
+{
+  "Addresses": []
+}
+```
+
+If any Elastic IP exists:
+
+Release:
+
+```bash
+aws ec2 release-address \
+--allocation-id <ALLOCATION_ID>
+```
+
+Verify:
+
+```bash
+aws ec2 describe-addresses
+```
+
+---
+
+## 7. IAM OIDC Providers
 
 Verify:
 
@@ -603,36 +809,230 @@ Expected:
 }
 ```
 
+If any provider exists:
+
+```bash
+aws iam delete-open-id-connect-provider \
+--open-id-connect-provider-arn <OIDC_ARN>
+```
+
+Verify:
+
+```bash
+aws iam list-open-id-connect-providers
+```
+
+---
+
+## 8. Vault IAM Role
+
+Verify:
+
+```bash
+aws iam get-role \
+--role-name VaultKMSRole
+```
+
+Delete Inline Policy:
+
+```bash
+aws iam delete-role-policy \
+--role-name VaultKMSRole \
+--policy-name VaultKMSPolicy
+```
+
+Delete Role:
+
+```bash
+aws iam delete-role \
+--role-name VaultKMSRole
+```
+
+Verify:
+
+```bash
+aws iam get-role \
+--role-name VaultKMSRole
+```
+
+Expected:
+
+```text
+NoSuchEntity
+```
+
+---
+
+## 9. KMS Alias
+
+Verify:
+
+```bash
+aws kms list-aliases
+```
+
+Delete Alias:
+
+```bash
+aws kms delete-alias \
+--alias-name alias/vault-auto-unseal
+```
+
+Verify:
+
+```bash
+aws kms list-aliases
+```
+
+---
+
+## 10. KMS Key
+
 Verify:
 
 ```bash
 aws kms list-keys
 ```
 
-Expected:
+List Key Details:
 
-```json
-{
-  "Keys": []
-}
+```bash
+aws kms describe-key \
+--key-id <KEY_ID>
+```
+
+Schedule Deletion:
+
+```bash
+aws kms schedule-key-deletion \
+--key-id <KEY_ID> \
+--pending-window-in-days 7
 ```
 
 Verify:
 
 ```bash
+aws kms describe-key \
+--key-id <KEY_ID>
+```
+
+Expected:
+
+```text
+PendingDeletion
+```
+
+---
+
+## 11. CloudFormation Stacks
+
+Verify:
+
+```bash
+aws cloudformation list-stacks
+```
+
+If any stack is not DELETE_COMPLETE:
+
+Delete:
+
+```bash
+aws cloudformation delete-stack \
+--stack-name <STACK_NAME>
+```
+
+Wait:
+
+```bash
+aws cloudformation wait stack-delete-complete \
+--stack-name <STACK_NAME>
+```
+
+Verify:
+
+```bash
+aws cloudformation list-stacks
+```
+
+---
+
+## 12. VPCs Created By EKS
+
+Verify:
+
+```bash
+aws ec2 describe-vpcs
+```
+
+Look for:
+
+```text
+eksctl-vault-eks-cluster/VPC
+```
+
+Delete only if all dependent resources are removed.
+
+Verify subnets:
+
+```bash
+aws ec2 describe-subnets
+```
+
+Delete:
+
+```bash
+aws ec2 delete-subnet \
+--subnet-id <SUBNET_ID>
+```
+
+Delete VPC:
+
+```bash
+aws ec2 delete-vpc \
+--vpc-id <VPC_ID>
+```
+
+---
+
+## 13. Final Cost Verification
+
+Run:
+
+```bash
+aws eks list-clusters
+
+aws elbv2 describe-load-balancers
+
+aws ec2 describe-nat-gateways
+
+aws ec2 describe-addresses
+
+aws iam list-open-id-connect-providers
+
+aws kms list-keys
+
 aws ec2 describe-volumes \
 --filters Name=status,Values=available
 ```
 
 Expected:
 
-```text
-No EBS volumes related to Vault
+* No EKS Clusters
+* No Load Balancers
+* No NAT Gateways
+* No Elastic IPs
+* No OIDC Providers
+* No KMS Keys
+* No EBS Volumes
+
+Only remaining resource:
+
+* Jump Server EC2 (if not terminated yet)
+
+Terminate the jump server when finished.
+
+One additional recommendation for a zero-cost lab checklist:
+
+```bash
+aws ce get-cost-and-usage --time-period Start=$(date +%Y-%m-01),End=$(date +%Y-%m-%d) --granularity MONTHLY --metrics UnblendedCost
 ```
-
-Terminate:
-
-- Jump Server EC2
-- Unused EBS Volumes
-
-Lab cleanup complete.
