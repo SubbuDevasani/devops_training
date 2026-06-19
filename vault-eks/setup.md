@@ -217,10 +217,10 @@ DEB052B9246A4C4A11572EF33B7FBAA5
 
 ## Trust Policy
 
-Create trust relationship policy, copy content from trust-policy.json file in this repo:
+Create trust relationship policy, by copying [https://github.com/SubbuDevasani/devops_training/blob/master/vault-eks/trust-policy.json](trust-policy.json) file:
 
 ```bash
-trust-policy.json
+vi trust-policy.json
 ```
 
 Create Role:
@@ -235,10 +235,10 @@ aws iam create-role \
 
 ## IAM Permissions
 
-Create IAM policy, copy content from kms-policy.json file in this repo:
+Create IAM policy, by copying [https://github.com/SubbuDevasani/devops_training/blob/master/vault-eks/trust-policy.json](kms-policy.json) file:
 
-```json
-kms-policy.json
+```bash
+vi kms-policy.json
 ```
 
 Attach:
@@ -254,46 +254,10 @@ aws iam put-role-policy \
 
 # Create EKS Cluster
 
-cluster.yaml
-
-```yaml
-apiVersion: eksctl.io/v1alpha5
-kind: ClusterConfig
-
-metadata:
-  name: vault-eks
-  region: ap-south-1
-  version: "1.34"
-
-autoModeConfig:
-  enabled: false
-
-iam:
-  withOIDC: true
-
-addons:
-  - name: aws-ebs-csi-driver
-
-managedNodeGroups:
-  - name: spot-workers
-
-    spot: true
-
-    instanceTypes:
-      - t3.small
-      - t3a.small
-
-    desiredCapacity: 3
-    minSize: 3
-    maxSize: 4
-
-    volumeType: gp3
-    volumeSize: 20
-```
-
-Create:
+Create EKS Cluster, by copying [https://github.com/SubbuDevasani/devops_training/blob/master/vault-eks/cluster.yaml](cluster.yaml) file:
 
 ```bash
+vi trust-policy.json
 eksctl create cluster -f cluster.yaml
 ```
 
@@ -317,7 +281,11 @@ kubectl create namespace vault
 
 # Vault values.yaml
 
-(Place your final working values.yaml here)
+Create values.yaml, by copying [https://github.com/SubbuDevasani/devops_training/blob/master/vault-eks/vault-values.yml](vault-values.yml) file:
+
+```bash
+vi vault-values.yml
+```
 
 ---
 
