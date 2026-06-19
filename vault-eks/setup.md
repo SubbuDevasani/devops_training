@@ -217,7 +217,7 @@ DEB052B9246A4C4A11572EF33B7FBAA5
 
 ## Trust Policy
 
-Create trust relationship policy, by copying [https://github.com/SubbuDevasani/devops_training/blob/master/vault-eks/trust-policy.json](trust-policy.json) file:
+Create trust relationship policy, by copying [trust-policy.json](https://github.com/SubbuDevasani/devops_training/blob/master/vault-eks/trust-policy.json) file:
 
 ```bash
 vi trust-policy.json
@@ -235,7 +235,7 @@ aws iam create-role \
 
 ## IAM Permissions
 
-Create IAM policy, by copying [https://github.com/SubbuDevasani/devops_training/blob/master/vault-eks/trust-policy.json](kms-policy.json) file:
+Create IAM policy, by copying [kms-policy.json](https://github.com/SubbuDevasani/devops_training/blob/master/vault-eks/trust-policy.json) file:
 
 ```bash
 vi kms-policy.json
@@ -254,7 +254,7 @@ aws iam put-role-policy \
 
 # Create EKS Cluster
 
-Create EKS Cluster, by copying [https://github.com/SubbuDevasani/devops_training/blob/master/vault-eks/cluster.yaml](cluster.yaml) file:
+Create EKS Cluster, by copying [cluster.yaml](https://github.com/SubbuDevasani/devops_training/blob/master/vault-eks/cluster.yaml) file:
 
 ```bash
 vi trust-policy.json
@@ -281,7 +281,7 @@ kubectl create namespace vault
 
 # Vault values.yaml
 
-Create values.yaml, by copying [https://github.com/SubbuDevasani/devops_training/blob/master/vault-eks/vault-values.yml](vault-values.yml) file:
+Create values.yaml, by copying [vault-values.yml](https://github.com/SubbuDevasani/devops_training/blob/master/vault-eks/vault-values.yml) file:
 
 ```bash
 vi vault-values.yml
